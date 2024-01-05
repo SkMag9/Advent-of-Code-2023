@@ -37,6 +37,7 @@ func getNumbers(line string) ([][]int, []int) {
 			for _, v := range allCoordinates {
 				indexes = append(indexes, v)
 				numbersInLine = append(numbersInLine, valueMap[line[v[0]:v[1]]])
+
 			}
 		}
 	}
@@ -73,7 +74,7 @@ func main() {
 	}
 
 	// Part 1:
-	sum1 := 0
+	// sum1 := 0
 	for i, line := range lines {
 		var numbersInLine []int
 		for _, v := range numbers[i] {
@@ -86,9 +87,14 @@ func main() {
 
 	}
 
-	for _, line := range lines {
-		getNumbers(line)
-
+	for i, line := range lines {
+		fmt.Println(line)
+		a, _ := getNumbers(line)
+		fmt.Println(a)
+		for _, value := range a {
+			numbers[i] = append(numbers[i], value)
+		}
+		fmt.Println(numbers[i])
 		// Add numbers to array
 		// for i, stringIndex := range numbers[index] {
 		// 	intsPerLine[i] = append(intsPerLine[i],
