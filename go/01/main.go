@@ -10,9 +10,40 @@ import (
 	"strings"
 )
 
-var (
-	re       *regexp.Regexp = regexp.MustCompile(`\d`)
-	valueMap map[string]int = map[string]int{
+func readInput(path string) []byte {
+	// Import files
+	input, err := os.ReadFile(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return input
+}
+
+func getLines(input []byte) []string {
+	var lines []string
+	for _, line := range bytes.Split(input, []byte("\n")) {
+		lines = append(lines, string(line[:]))
+	}
+
+	return lines
+}
+
+func getDigits(line string) [][2]int {
+	// Collection of [2]int values with:
+	// numbers[i][0] = value
+	// numbers[i][1] = index in line (used to determine position in line)
+	var numbers [][2]int
+  re := regexp.MustCompile(`\d`)
+
+	// magic
+
+	return numbers
+}
+
+func getWordDigits(line string) [][2]int {
+	// Same as getDigits() but for getting the digits from the words
+	var numbers [][2]int
+  valueMap := map[string]int{
 		"zero":  0,
 		"one":   1,
 		"two":   2,
@@ -24,9 +55,19 @@ var (
 		"eight": 8,
 		"nine":  9,
 	}
-)
 
-func getNumbers(line string) ([][]int, []int) {
+
+	// magic
+
+	return numbers
+}
+
+func getAllNumbers(line string) {
+	getDigits(line)
+	getWordDigits(line)
+}
+
+func getNumbers2(line string) ([][]int, []int) {
 	var indexes [][]int
 	var numbersInLine []int
 
@@ -55,16 +96,8 @@ func getFirstAndLast(nums []int) [2]int {
 }
 
 func main() {
-	// Import files
-	input, err := os.ReadFile("files/small-input-part2.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var lines []string
-	for _, line := range bytes.Split(input, []byte("\n")) {
-		lines = append(lines, string(line[:]))
-	}
+	input := readInput("files/small-input-part2.txt")
+	lines := getLines(input)
 
 	var numbers [][][]int
 	// insert all digits that are already there
@@ -84,12 +117,12 @@ func main() {
 			}
 			numbersInLine = append(numbersInLine, n)
 		}
-
+		fmt.Println("nil:", numbersInLine)
 	}
 
 	for i, line := range lines {
 		fmt.Println(line)
-		a, _ := getNumbers(line)
+		a, _ := getNumbers2(line)
 		fmt.Println(a)
 		for _, value := range a {
 			numbers[i] = append(numbers[i], value)
