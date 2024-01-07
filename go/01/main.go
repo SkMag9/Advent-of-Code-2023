@@ -10,6 +10,7 @@ import (
 	"strconv"
 )
 
+// Read file at the provided input path
 func readInput(path string) []byte {
 	// Import files
 	input, err := os.ReadFile(path)
@@ -19,6 +20,8 @@ func readInput(path string) []byte {
 	return input
 }
 
+// Parse File input and return slice of strings with each value being a line
+// (separated by \n).
 func getLines(input []byte) []string {
 	var lines []string
 	for _, line := range bytes.Split(input, []byte("\n")) {
@@ -28,164 +31,160 @@ func getLines(input []byte) []string {
 	return lines
 }
 
-func getDigits(line string) [][2]int {
+func getNumericDigits(line string) [][2]int {
 	// Collection of [2]int values with:
 	// numbers[i][0] = value
 	// numbers[i][1] = starting index in line (used to determine position in line)
 	var numbers [][2]int
 	re := regexp.MustCompile(`\d`)
-
 	matches := re.FindAllStringIndex(line, -1)
 
-	for _, v := range matches {
-		number, err := strconv.Atoi(line[v[0]:v[1]])
+	for _, match := range matches {
+		number, err := strconv.Atoi(line[match[0]:match[1]])
 		if err != nil {
 			log.Fatal(err)
 		}
-		numberAndIndex := []int{number, v[0]}
-		numbers = append(numbers, [2]int(numberAndIndex))
+		numberAndIndex := [2]int{number, match[0]}
+		numbers = append(numbers, numberAndIndex)
 	}
 
 	return numbers
 }
 
-// func getWordDigits(line string) [][2]int {
-// 	// Same as getDigits() but for getting the digits from the words
-// 	var numbers [][2]int
-// 	valueMap := map[string]int{
-// 		"zero":  0,
-// 		"one":   1,
-// 		"two":   2,
-// 		"three": 3,
-// 		"four":  4,
-// 		"five":  5,
-// 		"six":   6,
-// 		"seven": 7,
-// 		"eight": 8,
-// 		"nine":  9,
-// 	}
-//
-// 	// magic
-//
-// 	return numbers
-// }
+// Same as getNumericDigits() but for getting the digits from the words
+func getWordDigits(line string) [][2]int {
+	var numbers [][2]int
+	valueMap := map[string]int{
+		"zero":  0,
+		"one":   1,
+		"two":   2,
+		"three": 3,
+		"four":  4,
+		"five":  5,
+		"six":   6,
+		"seven": 7,
+		"eight": 8,
+		"nine":  9,
+	}
 
-func getAllNumbers(line string) {
-	getDigits(line)
-	// getWordDigits(line)
+	for key, value := range valueMap {
+		re := regexp.MustCompile(key)
+		matches := re.FindAllStringIndex(line, -1)
+
+		for _, match := range matches {
+			numberAndIndex := [2]int{value, match[0]}
+			numbers = append(numbers, numberAndIndex)
+		}
+	}
+
+	return numbers
 }
 
-func getFirstAndLast(nums [][2]int) (int, error) {
-	if len(nums) == 0 {
+func getAllDigits(line string) [][2]int {
+	numericDigits := getNumericDigits(line)
+	wordDigits := getWordDigits(line)
+	var allDigits [][2]int
+
+	allDigits = append(allDigits, numericDigits...)
+	allDigits = append(allDigits, wordDigits...)
+
+	return allDigits
+}
+
+// Input: Slice of [2]int where numbers[i][0] is a digit and numbers[i][1] is
+// the index in the lines.
+// Retrurn: two digit int with first digit being the first digit and second
+// being the last digit in a line.
+func getInstruction(numbers [][2]int) (int, error) {
+	if len(numbers) == 0 {
 		err := errors.New("Input slice is empty!")
 		return 0, err
 	}
-
 	var (
-		lowestIndexElement  int = 0             // default: first index
-		highestIndexElement int = len(nums) - 1 // default: last index
+		highestIndexElement int = 0                // default: first index
+		lowestIndexElement  int = len(numbers) - 1 // default: last index
 	)
-	for i, v := range nums {
-		if v[1] == lowestIndexElement || v[1] == highestIndexElement {
-			log.Fatal("Error in data processing: Two values with the same index!")
+	for positionInSlice, number := range numbers {
+		if number[1] > numbers[highestIndexElement][1] {
+			highestIndexElement = positionInSlice
 		}
-		if v[1] > highestIndexElement {
-			highestIndexElement = i
-		}
-		if v[1] < lowestIndexElement {
-			lowestIndexElement = i
+		if number[1] < numbers[lowestIndexElement][1] {
+			lowestIndexElement = positionInSlice
 		}
 	}
 
-	firstDigit := nums[lowestIndexElement][0]
-	secondDigit := nums[highestIndexElement][0]
+	firstDigit := numbers[lowestIndexElement][0]
+	secondDigit := numbers[highestIndexElement][0]
 
-	var instructionString string = string(firstDigit) + string(secondDigit)
+	instructionString := fmt.Sprint(firstDigit) + fmt.Sprint(secondDigit)
 
 	instruction, err := strconv.Atoi(instructionString)
 	if err != nil {
 		return 0, err
 	}
-
 	return instruction, nil
 }
 
-func main() {
-	// Setup
-	input := readInput("files/small-input-part2.txt")
-	lines := getLines(input)
-	fmt.Println(lines)
+func part1(path string, fullFile bool) {
+	var label string
 
-	// Part1
-	var sumPart1 int = 0
-	for _, line := range lines {
-		digitsInLine := getDigits(line)
-		instruction, err := getFirstAndLast(digitsInLine)
-		if err == nil {
-		}
-		// Else: nothing -> Errors if line has no digits
+	if fullFile {
+		label = "Full File"
+	} else {
+		label = "Test File"
 	}
+
+	fmt.Printf("Part 1: %v\n", label)
+
+	input := readInput(path)
+	lines := getLines(input)
+
+	var sum int = 0
+
+	for _, line := range lines {
+		digitsInLine := getNumericDigits(line)
+		instruction, err := getInstruction(digitsInLine)
+		if err == nil {
+			sum += instruction
+		}
+		// Else: nothing since it throws errors if line has no digits
+	}
+
+	fmt.Printf("Result: %v\n", sum)
 }
 
-// var numbers [][][]int
-// // insert all digits that are already there
-// for _, line := range lines {
-// 	newNumber := re.FindAllStringIndex(line, -1)
-// 	numbers = append(numbers, newNumber)
-// }
-//
-// // Part 1:
-// // sum1 := 0
-// for i, line := range lines {
-// 	var numbersInLine []int
-// 	for _, v := range numbers[i] {
-// 		n, err := strconv.Atoi(line[v[0]:v[1]])
-// 		if err != nil {
-// 			log.Fatal(err)
-// 		}
-// 		numbersInLine = append(numbersInLine, n)
-// 	}
-// 	fmt.Println("nil:", numbersInLine)
-// }
-//
-// for i, line := range lines {
-// 	fmt.Println(line)
-// 	a, _ := getNumbers2(line)
-// 	fmt.Println(a)
-// 	for _, value := range a {
-// 		numbers[i] = append(numbers[i], value)
-// 	}
-// 	fmt.Println(numbers[i])
-// 	// Add numbers to array
-// 	// for i, stringIndex := range numbers[index] {
-// 	// 	intsPerLine[i] = append(intsPerLine[i],
-// 	// line[stringIndex[0]:stringIndex[1]])
-// 	// }
-// 	// fmt.Printf("%q\n", intsPerLine)
-// }
-// for i := range numbers {
-// 	for _, w := range numbers[i] {
-// 		fmt.Print(w, ": ")
-// 		fmt.Print(lines[i][w[0]:w[1]], ";   ")
-// 	}
-// 	fmt.Println("")
-// }
-// // fmt.Println(sum)
+func part2(path string, fullFile bool) {
+	var label string
 
-// func getNumbers2(line string) ([][]int, []int) {
-// 	var indexes [][]int
-// 	var numbersInLine []int
-//
-// 	for key := range valueMap {
-// 		if strings.Contains(line, key) {
-// 			regex := regexp.MustCompile(key)
-// 			allCoordinates := regex.FindAllStringIndex(line, -1)
-// 			for _, v := range allCoordinates {
-// 				indexes = append(indexes, v)
-// 				numbersInLine = append(numbersInLine, valueMap[line[v[0]:v[1]]])
-//
-// 			}
-// 		}
-// 	}
-// 	return indexes, numbersInLine
-// }
+	if fullFile {
+		label = "Full File"
+	} else {
+		label = "Test File"
+	}
+
+	fmt.Printf("Part 2: %v\n", label)
+
+	input := readInput(path)
+	lines := getLines(input)
+
+	var sum int = 0
+
+	for _, line := range lines {
+		digitsInLine := getAllDigits(line)
+		instruction, err := getInstruction(digitsInLine)
+		if err == nil {
+			sum += instruction
+		}
+		// Else: nothing since it throws errors if line has no digits
+	}
+
+	fmt.Printf("Result: %v\n", sum)
+}
+
+func main() {
+	part1("files/small-input-part1.txt", false)
+	part2("files/small-input-part2.txt", false)
+
+	part1("files/input.txt", true)
+	part2("files/input.txt", true)
+}
