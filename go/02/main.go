@@ -142,6 +142,50 @@ func getPossibleGameIdSum(lines []string, maxColorValues [3]int) int {
 	return sum
 }
 
+func getColorMinimums(colors [3][]int) [3]int {
+	colorMinimums := [3]int{colors[0][0], colors[1][0], colors[2][0]}
+	for colorIndex, color := range colors {
+		for _, colorValue := range color {
+			if colorValue > colorMinimums[colorIndex] {
+				colorMinimums[colorIndex] = colorValue
+			}
+		}
+	}
+	return colorMinimums
+}
+
+func getGamePower(colorMinimums [3]int) int {
+	return colorMinimums[0] * colorMinimums[1] * colorMinimums[2]
+}
+
+func getPower(lines []string) int {
+	power := 0
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+
+		_, data := splitPrefixAndData(line)
+		colorValues := getColorValues(data)
+		minimums := getColorMinimums(colorValues)
+		gamePower := getGamePower(minimums)
+
+		// fmt.Printf(
+		// 	"Line: %v\nData: %v\ncolorValues: %v\nminimums: %v\ngamePower: %v\npower
+		// before: %v\n power after: %v\n",
+		// 	line,
+		// 	data,
+		// 	colorValues,
+		// 	minimums,
+		// 	gamePower,
+		// 	power,
+		// 	power+gamePower,
+		// )
+		power += gamePower
+	}
+	return power
+}
+
 func part1(path string, fullFile bool, maxColorValues [3]int) {
 	label := "Part 1:"
 
@@ -157,12 +201,29 @@ func part1(path string, fullFile bool, maxColorValues [3]int) {
 	fmt.Printf("Result: %v\n", getPossibleGameIdSum(lines, maxColorValues))
 }
 
+func part2(path string, fullFile bool) {
+	label := "Part 2:"
+
+	if !fullFile {
+		label = "Part 2: Test File"
+	}
+
+	fmt.Println(label)
+
+	input := readFile(path)
+	lines := getLines(input)
+
+	fmt.Printf("Result: %v\n", getPower(lines))
+}
+
 func main() {
 	part1MaxColorValues := [3]int{
 		12, // red
 		13, // green
 		14, // blue
 	}
-	part1("files/small-input-part1.txt", false, part1MaxColorValues)
+	part1("files/small-input.txt", false, part1MaxColorValues)
 	part1("files/input.txt", true, part1MaxColorValues)
+	part2("files/small-input.txt", false)
+	part2("files/input.txt", true)
 }
