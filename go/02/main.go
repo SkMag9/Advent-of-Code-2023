@@ -170,17 +170,6 @@ func getPower(lines []string) int {
 		minimums := getColorMinimums(colorValues)
 		gamePower := getGamePower(minimums)
 
-		// fmt.Printf(
-		// 	"Line: %v\nData: %v\ncolorValues: %v\nminimums: %v\ngamePower: %v\npower
-		// before: %v\n power after: %v\n",
-		// 	line,
-		// 	data,
-		// 	colorValues,
-		// 	minimums,
-		// 	gamePower,
-		// 	power,
-		// 	power+gamePower,
-		// )
 		power += gamePower
 	}
 	return power
