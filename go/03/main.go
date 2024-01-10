@@ -102,42 +102,72 @@ func isPartNumber(lines []string, lineIndex int, numberIndex [2]int) bool {
 	skipLeft := bool(numberIndex[0] == 0)
 	skipRight := bool(numberIndex[1] == len(lines[0]))
 
+	fmt.Println(
+		"Line: ",
+		lines[lineIndex],
+		"Bools: ",
+		skipTop,
+		skipBottom,
+		skipLeft,
+		skipRight,
+	)
+
+	fmt.Println(
+		"Checks:",
+		!skipTop && !skipLeft,
+		!skipTop && !skipRight,
+		!skipBottom && !skipLeft,
+		!skipBottom && !skipRight,
+		!skipTop,
+		!skipBottom,
+		!skipLeft,
+		!skipRight,
+	)
+
 	if !skipTop && !skipLeft {
+		fmt.Println(lines[topLeft[0]][topLeft[1]:topLeft[2]])
 		if isSymbol(lines[topLeft[0]][topLeft[1]:topLeft[2]]) {
 			return true
 		}
 	}
 	if !skipTop && !skipRight {
+		fmt.Println(lines[topRight[0]][topRight[1]:topRight[2]])
 		if isSymbol(lines[topRight[0]][topRight[1]:topRight[2]]) {
 			return true
 		}
 	}
 	if !skipBottom && !skipLeft {
+		fmt.Println(lines[downLeft[0]][downLeft[1]:downLeft[2]])
 		if isSymbol(lines[downLeft[0]][downLeft[1]:downLeft[2]]) {
 			return true
 		}
 	}
 	if !skipBottom && !skipRight {
+		fmt.Println(lines[downRight[0]][downRight[1]:downRight[2]])
 		if isSymbol(lines[downRight[0]][downRight[1]:downRight[2]]) {
 			return true
 		}
 	}
 	if !skipTop {
+		fmt.Println(lines[up[0]][up[1]:up[2]])
 		if isSymbol(lines[up[0]][up[1]:up[2]]) {
 			return true
 		}
 	}
 	if !skipBottom {
+		fmt.Println(lines[down[0]][down[1]:down[2]])
 		if isSymbol(lines[down[0]][down[1]:down[2]]) {
 			return true
 		}
 	}
 	if !skipLeft {
+		fmt.Println(lines[left[0]][left[1]:left[2]])
 		if isSymbol(lines[left[0]][left[1]:left[2]]) {
 			return true
 		}
 	}
 	if !skipRight {
+		fmt.Println(lines[right[0]][right[1]:right[2]])
 		if isSymbol(lines[right[0]][right[1]:right[2]]) {
 			return true
 		}
@@ -149,8 +179,25 @@ func getPartNumberSum(lines []string) int {
 	partNumberSum := 0
 
 	allNumbers := getAllNumbers(lines)
-	allNumbers = nil
 	fmt.Println(allNumbers)
+
+	for lineIndex, line := range allNumbers {
+		for _, number := range line {
+			fmt.Println(lines[lineIndex][number[0]:number[1]])
+			if isPartNumber(lines, lineIndex, number) {
+				partNumber, err := strconv.Atoi(lines[lineIndex][number[0]:number[1]])
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				fmt.Println(partNumber)
+				partNumberSum += partNumber
+			} else {
+				fmt.Println(line, lineIndex, number)
+				fmt.Println("Not a Part: ", isPartNumber(lines, lineIndex, number))
+			}
+		}
+	}
 
 	return partNumberSum
 }
