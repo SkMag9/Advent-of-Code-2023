@@ -93,29 +93,55 @@ func getNeighbours(
 }
 
 func isPartNumber(lines []string, lineIndex int, numberIndex [2]int) bool {
-	topLine := false
-	bottomLine := false
-	leftCol := false
-	rightCol := false
+	up, down, left, right, topLeft, topRight, downLeft, downRight := getNeighbours(
+		lineIndex,
+		numberIndex,
+	)
+	skipTop := bool(lineIndex == 0)
+	skipBottom := bool(lineIndex == len(lines)-2) // last value always empty
+	skipLeft := bool(numberIndex[0] == 0)
+	skipRight := bool(numberIndex[1] == len(lines[0]))
 
-	if lineIndex == 0 {
-		topLine = true
+	if !skipTop && !skipLeft {
+		if isSymbol(lines[topLeft[0]][topLeft[1]:topLeft[2]]) {
+			return true
+		}
 	}
-	if lineIndex == len(lines)-2 {
-		bottomLine = true
+	if !skipTop && !skipRight {
+		if isSymbol(lines[topRight[0]][topRight[1]:topRight[2]]) {
+			return true
+		}
 	}
-	if numberIndex[0] == 0 {
-		leftCol = true
+	if !skipBottom && !skipLeft {
+		if isSymbol(lines[downLeft[0]][downLeft[1]:downLeft[2]]) {
+			return true
+		}
 	}
-	if numberIndex[1] == len(lines[0]) {
-		rightCol = true
+	if !skipBottom && !skipRight {
+		if isSymbol(lines[downRight[0]][downRight[1]:downRight[2]]) {
+			return true
+		}
 	}
-
-	if isSymbol(lines[lineIndex][numberIndex[0]-1:numberIndex[0]]) || // left
-		isSymbol(lines[lineIndex][numberIndex[1]:numberIndex[1]+1]) { // right
-		return true
+	if !skipTop {
+		if isSymbol(lines[up[0]][up[1]:up[2]]) {
+			return true
+		}
 	}
-
+	if !skipBottom {
+		if isSymbol(lines[down[0]][down[1]:down[2]]) {
+			return true
+		}
+	}
+	if !skipLeft {
+		if isSymbol(lines[left[0]][left[1]:left[2]]) {
+			return true
+		}
+	}
+	if !skipRight {
+		if isSymbol(lines[right[0]][right[1]:right[2]]) {
+			return true
+		}
+	}
 	return false
 }
 
