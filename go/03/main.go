@@ -74,6 +74,24 @@ func isSymbol(s string) bool {
 	return re.MatchString(s)
 }
 
+// 0: lineIndex
+// 1: start index
+// 2: end index
+func getNeighbours(
+	lineIndex int, numberIndex [2]int,
+) (up, down, left, right, topLeft, topRight, downLeft, downRight [3]int) {
+	up = [3]int{lineIndex - 1, numberIndex[0], numberIndex[1]}
+	down = [3]int{lineIndex + 1, numberIndex[0], numberIndex[1]}
+	left = [3]int{lineIndex, numberIndex[0] - 1, numberIndex[0]}
+	right = [3]int{lineIndex, numberIndex[1], numberIndex[1] + 1}
+	topLeft = [3]int{lineIndex - 1, numberIndex[0] - 1, numberIndex[0]}
+	topRight = [3]int{lineIndex - 1, numberIndex[1], numberIndex[1] + 1}
+	downLeft = [3]int{lineIndex + 1, numberIndex[0] - 1, numberIndex[0]}
+	downRight = [3]int{lineIndex + 1, numberIndex[1], numberIndex[1] + 1}
+
+	return
+}
+
 func isPartNumber(lines []string, lineIndex int, numberIndex [2]int) bool {
 	topLine := false
 	bottomLine := false
