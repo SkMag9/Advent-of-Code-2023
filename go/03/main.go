@@ -165,6 +165,17 @@ func getPartNumberSum(lines []string) int {
 	return partNumberSum
 }
 
+type neighbours struct {
+	topLeft     bool
+	topRight    bool
+	bottomLeft  bool
+	bottomRight bool
+	top         bool
+	bottom      bool
+	left        bool
+	right       bool
+}
+
 func getGears(line string) [][2]int {
 	var gears [][2]int
 	re := regexp.MustCompile(`\*`)
@@ -173,6 +184,49 @@ func getGears(line string) [][2]int {
 		gears = append(gears, [2]int{match[0], match[1]})
 	}
 	return gears
+}
+
+func getGearNeighbours(
+	lines []string,
+	lineIndex int,
+	gearPositions [][2]int,
+) neighbours {
+	var gearNeighbours neighbours
+
+	for _, gear := range gearPositions {
+		if lineIndex != 0 {
+			gearNeighbours.topLeft = true
+			gearNeighbours.topRight = true
+			gearNeighbours.top = true
+		}
+
+		if lineIndex != len(lines)-2 {
+			gearNeighbours.bottomLeft = true
+			gearNeighbours.bottomRight = true
+			gearNeighbours.bottom = true
+		}
+
+		if gear[0] == 0 {
+			gearNeighbours.topLeft = false
+			gearNeighbours.bottomLeft = false
+			gearNeighbours.left = false
+		}
+
+		if gear[1] == len(lines[0]) {
+			gearNeighbours.topRight = false
+			gearNeighbours.bottomRight = false
+			gearNeighbours.right = false
+
+		} else {
+			gearNeighbours.topRight = false
+			gearNeighbours.bottomRight = false
+			gearNeighbours.right = false
+		}
+
+		fmt.Println(gearNeighbours)
+	}
+
+	return gearNeighbours
 }
 
 func getGearNumbers(lines []string, lineIndex int, gearLocation [2]int) []int {
