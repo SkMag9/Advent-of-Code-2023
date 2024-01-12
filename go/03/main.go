@@ -165,6 +165,33 @@ func getPartNumberSum(lines []string) int {
 	return partNumberSum
 }
 
+func getGears(line string) [][2]int {
+	var gears [][2]int
+	re := regexp.MustCompile(`\*`)
+	matches := re.FindAllStringIndex(line, -1)
+	for _, match := range matches {
+		gears = append(gears, [2]int{match[0], match[1]})
+	}
+	return gears
+}
+
+func getGearNumbers(lines []string, lineIndex int, gearLocation [2]int) []int {
+	return []int{0}
+}
+
+func getGearRatioSum(lines []string) int {
+	gearRatioSum := 0
+
+	for lineIndex, line := range lines {
+		gearsInLine := getGears(line)
+		for _, gear := range gearsInLine {
+			fmt.Println(lineIndex, gear)
+		}
+	}
+
+	return gearRatioSum
+}
+
 func part1(path string, fullFile bool) {
 	label := "Part 1:"
 
@@ -189,13 +216,14 @@ func part2(path string, fullFile bool) {
 
 	fmt.Println(label)
 
-	// input := readFile(path)
-	// lines := getLines(input)
+	input := readFile(path)
+	lines := getLines(input)
 
-	// fmt.Printf("Result: %v\n", getPower(lines))
+	fmt.Printf("Result: %v\n", getGearRatioSum(lines))
 }
 
 func main() {
 	part1("files/small-input.txt", false)
 	part1("files/input.txt", true)
+	part2("files/small-input.txt", false)
 }
